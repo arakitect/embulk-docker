@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-CU3-ubuntu-18.04
+    container_name: source_db
+    ports: 
+      - 1433:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Pass1234
+    networks:
+      - etl
+  postgresql:
+    image: postgres:12
+    container_name: dest_db
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - etl
+  adminer:
+    image: adminer
+    container_name: adminer
+    ports:
+      - 18080:8080
+    networks:
+      - etl
+  embulk:
+    build:
+      context: embulk
+    container_name: embulk
+    tty: true
+    volumes:
+      - ./embulk-logs:/root/logs
+    networks:
+      - etl
+networks:
+  etl:
+    driver: bridge
+    
